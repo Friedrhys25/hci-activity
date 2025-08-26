@@ -14,7 +14,7 @@ const Mainmenu = () => {
           
           <Menubtn btnname="1. Calculator" to="/calculator"/>
           <Menubtn btnname="2. Grade checker" to="/gradechecker"/>
-          <Menubtn btnname="3. To-Do List" />
+          <Menubtn btnname="3. To-Do List" to="/todolist"/>
           <Menubtn btnname="4. About us" />
           <Menubtn btnname="5. Exit" to = "/"/>
 
@@ -26,6 +26,8 @@ const Mainmenu = () => {
 
 export function Menubtn({ btnname, to }) {
   const navigate = useNavigate();
+
+  
   const handleClick = () => {
     if (btnname.includes("Exit")) {
       const confirmed = window.confirm("Are you sure you want to exit?");

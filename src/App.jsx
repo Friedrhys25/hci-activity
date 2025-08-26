@@ -4,6 +4,7 @@ import Landingpage from "./components/Landingpage";
 import Mainmenu from "./components/Mainmenu";
 import Calculatorpage from "./components/Calculatorpage";
 import Gradecheckerpage from "./components/Gradecheckerpage";
+import Todolistpage from "./components/Todolistpage";
 
 function App() {
   return (
@@ -13,8 +14,8 @@ function App() {
         <Route path="/" element={<Landingpage />} />
         <Route path="/mainmenu" element={<Mainmenu />} />
         <Route path="/calculator" element={<Calculatorpage />} />
-          <Route path="/gradechecker" element={<Gradecheckerpage />} />
-
+        <Route path="/gradechecker" element={<Gradecheckerpage />} />
+        <Route path="/todolist" element={<Todolistpage />} />
       </Routes>
     </Router>
   );
