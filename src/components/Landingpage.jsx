@@ -6,6 +6,7 @@ import Navbar from "./Navbar";
 const Landingpage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // ✅ new state
   const [message, setMessage] = useState("");
   const [showForgot, setShowForgot] = useState(false);
   const [email, setEmail] = useState("");
@@ -41,12 +42,11 @@ const Landingpage = () => {
   return (
     <div
       className="h-screen w-screen flex justify-center items-center bg-cover bg-center"
-      style={{ backgroundImage: `url(${bgImage})` }} // ✅ apply background here
+      style={{ backgroundImage: `url(${bgImage})` }}
     >
-
       {/* Login Box */}
       <div className="bg-white/80 backdrop-blur-md shadow-2xl border rounded-2xl p-8 w-96">
-        <h2 className="text-xl font-bold mb-4">Welcome Admin</h2>
+        <h2 className="text-xl font-bold mb-4">Welcome Student</h2>
 
         <form className="mb-3" onSubmit={handleLogin}>
           <p className="ml-1">Username</p>
@@ -58,12 +58,22 @@ const Landingpage = () => {
           />
 
           <p className="ml-1">Password</p>
-          <input
-            className="border rounded-md w-full mb-2 p-1"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="relative mb-2">
+            <input
+              className="border rounded-md w-full p-1 pr-12"
+              type={showPassword ? "text" : "password"} // ✅ toggle input type
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {/* Show/Hide Button */}
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-600 hover:text-emerald-600"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
 
           {/* Forget Password link */}
           <button
