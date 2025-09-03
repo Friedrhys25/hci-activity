@@ -4,6 +4,7 @@ import bgImage from "../Image/1.jpg"; // ✅ background import
 
 const Calculatorpage = () => {
   const [input, setInput] = useState("");
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
   const navigate = useNavigate();
 
   const handleClick = (value) => {
@@ -22,10 +23,7 @@ const Calculatorpage = () => {
         setInput("Error");
       }
     } else if (value === "Exit") {
-      const confirmed = window.confirm("Are you sure you want to exit?");
-      if (confirmed) {
-        navigate("/mainmenu");
-      }
+      setShowExitConfirm(true); // ✅ show modal instead of window.confirm
     } else {
       setInput(input + value);
     }
@@ -83,6 +81,30 @@ const Calculatorpage = () => {
           })}
         </div>
       </div>
+
+      {/* Exit Confirmation Modal */}
+      {showExitConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white backdrop-blur-lg p-6 rounded-xl shadow-2xl w-80 text-center">
+            <h2 className="text-xl font-bold mb-4">Confirm Exit</h2>
+            <p className="mb-6 text-gray-700">Are you sure you want to exit?</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => navigate("/mainmenu")}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowExitConfirm(false)}
+                className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

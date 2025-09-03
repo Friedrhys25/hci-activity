@@ -7,6 +7,7 @@ const Gradecheckerpage = () => {
   const [grades, setGrades] = useState([]); 
   const [gwa, setGwa] = useState(null); 
   const [remarks, setRemarks] = useState(""); 
+  const [showExitConfirm, setShowExitConfirm] = useState(false); // ✅ modal state
   const navigate = useNavigate();
 
   // Handle number of subjects entered
@@ -49,12 +50,6 @@ const Gradecheckerpage = () => {
       setRemarks("👍 Very Good");
     } else {
       setRemarks("✅ Passed");
-    }
-  };
-
-  const handleExit = () => {
-    if (window.confirm("Are you sure you want to exit?")) {
-      navigate("/mainmenu");
     }
   };
 
@@ -114,12 +109,36 @@ const Gradecheckerpage = () => {
 
         {/* Exit Button */}
         <button
-          onClick={handleExit}
+          onClick={() => setShowExitConfirm(true)}
           className="mt-6 bg-red-500 text-white px-4 py-2 rounded-lg w-full font-bold hover:bg-red-600 transition"
         >
           Exit
         </button>
       </div>
+
+      {/* Exit Confirmation Modal */}
+      {showExitConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white backdrop-blur-lg p-6 rounded-xl shadow-2xl w-80 text-center">
+            <h2 className="text-xl font-bold mb-4">Confirm Exit</h2>
+            <p className="mb-6 text-gray-700">Are you sure you want to exit?</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => navigate("/mainmenu")}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowExitConfirm(false)}
+                className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
