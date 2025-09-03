@@ -1,28 +1,31 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
+import bgImage from "../Image/1.jpg"; // ✅ fixed path
 import Navbar from "./Navbar";
 
 const Landingpage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [showForgot, setShowForgot] = useState(false);
+  const [email, setEmail] = useState("");
+  const [codeSent, setCodeSent] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     try {
       const res = await fetch("http://localhost:5000/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
-
       const data = await res.json();
 
       if (res.ok) {
         setMessage(data.message);
-        navigate("/mainmenu"); // Navigate to the Mainmenu page
+        navigate("/mainmenu");
       } else {
         setMessage(data.message);
       }
@@ -31,10 +34,18 @@ const Landingpage = () => {
     }
   };
 
+  const handleSendCode = () => {
+    setCodeSent(true);
+  };
+
   return (
-    <div className="h-screen w-screen flex justify-center bg-gray-100">
-      <Navbar />
-      <div className="bg-white shadow-lg rounded-2xl p-8 w-96 self-center">
+    <div
+      className="h-screen w-screen flex justify-center items-center bg-cover bg-center"
+      style={{ backgroundImage: `url(${bgImage})` }} // ✅ apply background here
+    >
+
+      {/* Login Box */}
+      <div className="bg-white/80 backdrop-blur-md shadow-2xl border rounded-2xl p-8 w-96">
         <h2 className="text-xl font-bold mb-4">Welcome Admin</h2>
 
         <form className="mb-3" onSubmit={handleLogin}>
@@ -42,7 +53,6 @@ const Landingpage = () => {
           <input
             className="border rounded-md w-full mb-2 p-1"
             type="text"
-            id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
@@ -51,10 +61,18 @@ const Landingpage = () => {
           <input
             className="border rounded-md w-full mb-2 p-1"
             type="password"
-            id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+
+          {/* Forget Password link */}
+          <button
+            type="button"
+            className="text-sm text-black underline hover:text-emerald-600 hover:underline-offset-2"
+            onClick={() => setShowForgot(true)}
+          >
+            Forget password?
+          </button>
 
           <button
             type="submit"
@@ -66,6 +84,55 @@ const Landingpage = () => {
 
         {message && <p className="text-center mt-2">{message}</p>}
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgot && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-96">
+            <h3 className="text-lg font-bold mb-3">Reset Password</h3>
+            {!codeSent ? (
+              <>
+                <p className="text-sm mb-2">
+                  Enter your email to receive a verification code:
+                </p>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="border rounded-md w-full mb-3 p-2"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <button
+                  className="bg-emerald-600 text-white w-full py-2 rounded-lg hover:bg-emerald-700"
+                  onClick={handleSendCode}
+                >
+                  Send Verification Code
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-sm mb-2">
+                  A verification code has been sent to <b>{email}</b>.
+                </p>
+                <input
+                  type="text"
+                  placeholder="Enter verification code"
+                  className="border rounded-md w-full mb-3 p-2"
+                />
+                <button className="bg-emerald-600 text-white w-full py-2 rounded-lg hover:bg-emerald-700">
+                  Verify Code
+                </button>
+              </>
+            )}
+            <button
+              className="mt-3 text-gray-500 underline text-sm"
+              onClick={() => setShowForgot(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
