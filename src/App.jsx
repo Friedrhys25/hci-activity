@@ -9,7 +9,6 @@ import Todolistpage from "./components/Todolistpage";
 function App() {
   return (
     <Router>
-      <Navbar />
       <Routes>
         <Route path="/" element={<Landingpage />} />
         <Route path="/mainmenu" element={<Mainmenu />} />

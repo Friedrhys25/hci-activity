@@ -59,40 +59,40 @@ const Todolistpage = () => {
 
   return (
     <div
-      className="h-screen w-screen flex justify-center items-center bg-cover bg-center"
+      className="h-screen w-screen flex justify-center items-center bg-cover bg-center p-4 sm:p-6 md:p-8"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
-      <div className="bg-white/80 backdrop-blur-md shadow-lg rounded-2xl p-8 w-96 text-center">
-        <h1 className="text-2xl font-bold mb-4">Smart To-Do List</h1>
+      <div className="bg-white/80 backdrop-blur-md shadow-lg rounded-2xl p-6 sm:p-8 w-full max-w-md md:max-w-lg text-center">
+        <h1 className="text-2xl md:text-3xl font-bold mb-4">Smart To-Do List</h1>
 
         {/* Input field */}
         <textarea
           id="todotext"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="border rounded-lg h-20 w-full mt-2 p-2"
+          className="border rounded-lg h-20 w-full mb-3 mt-2 p-2 text-base md:text-lg"
           placeholder="Write your task here..."
         ></textarea>
 
         {/* Buttons */}
-        <div className="flex flex-row justify-between gap-2">
+        <div className="flex flex-col sm:flex-row justify-between gap-3">
           <button
             onClick={addTask}
-            className="bg-emerald-600 text-white px-4 py-2 rounded-lg w-full font-bold hover:bg-emerald-700 transition mt-3"
+            className="bg-emerald-600 text-white px-4 py-2 rounded-lg w-full font-bold hover:bg-emerald-700 transition mt-3 sm:mt-0"
           >
             Add
           </button>
 
           <button
             onClick={clearTasks}
-            className="bg-gray-600 text-white px-4 py-2 rounded-lg w-full font-bold hover:bg-gray-700 transition mt-3"
+            className="bg-gray-600 text-white px-4 py-2 rounded-lg w-full font-bold hover:bg-gray-700 transition mt-3 sm:mt-0"
           >
             Clear
           </button>
         </div>
 
         {/* Task list */}
-        <ul className="mt-4 text-left max-h-40 overflow-y-auto">
+        <ul className="mt-4 text-left max-h-40 overflow-y-auto sm:max-h-52 md:max-h-64">
           {tasks.map((task, index) => (
             <li
               key={index}
@@ -100,7 +100,7 @@ const Todolistpage = () => {
             >
               <span
                 onClick={() => toggleTask(index)}
-                className={`cursor-pointer w-full ${
+                className={`cursor-pointer w-full text-sm sm:text-base md:text-lg ${
                   task.done ? "line-through text-gray-500" : "text-black"
                 }`}
               >
@@ -108,7 +108,7 @@ const Todolistpage = () => {
               </span>
               <button
                 onClick={() => deleteTask(index)}
-                className="ml-2 text-red-500 font-bold hover:text-red-700"
+                className="ml-2 text-red-500 font-bold hover:text-red-700 text-lg"
               >
                 ✕
               </button>
@@ -127,16 +127,16 @@ const Todolistpage = () => {
 
       {/* ✅ Exit Confirmation Modal */}
       {showExitConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-80 text-center">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm text-center">
             <h3 className="text-lg font-bold mb-3">Confirm Exit</h3>
             <p className="mb-4">Are you sure you want to exit?</p>
-            <div className="flex justify-around">
+            <div className="flex flex-col sm:flex-row justify-around gap-3">
               <button
                 onClick={confirmExit}
                 className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transition"
               >
-                Yes, Exit
+                Yes
               </button>
               <button
                 onClick={() => setShowExitConfirm(false)}

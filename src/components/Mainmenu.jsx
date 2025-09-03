@@ -7,11 +7,14 @@ const Mainmenu = () => {
 
   return (
     <div
-      className="h-screen w-screen flex justify-center items-center bg-cover bg-center"
+      className="min-h-screen w-screen flex justify-center items-center bg-cover bg-center"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
-      <div className="bg-white/80 backdrop-blur-md shadow-lg rounded-2xl p-8 w-96 flex flex-col space-y-4">
-        <h1 className="text-4xl font-bold mb-5 text-center">Menus</h1>
+      {/* Responsive container */}
+      <div className="bg-white/80 backdrop-blur-md shadow-lg rounded-2xl p-6 sm:p-8 w-[90%] max-w-sm sm:max-w-md flex flex-col space-y-4">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-5 text-center">
+          Menus
+        </h1>
 
         <Menubtn btnname="1. Calculator" to="/calculator" />
         <Menubtn btnname="2. Grade checker" to="/gradechecker" />
@@ -19,7 +22,7 @@ const Mainmenu = () => {
         <Menubtn btnname="4. About us" to="/about" />
         <button
           onClick={() => setShowExitConfirm(true)}
-          className="text-left pl-5 text-2xl font-bold bg-red-600 text-white rounded-md p-2 hover:bg-red-700 transition duration-300"
+          className="text-left pl-3 sm:pl-5 text-lg sm:text-2xl font-bold bg-red-600 text-white rounded-md p-2 sm:p-3 hover:bg-red-700 transition duration-300"
         >
           5. Exit
         </button>
@@ -41,7 +44,7 @@ export function Menubtn({ btnname, to }) {
   return (
     <button
       onClick={handleClick}
-      className="text-left pl-5 text-2xl font-bold bg-emerald-600 text-white rounded-md p-2 hover:bg-emerald-700 transition duration-300"
+      className="text-left pl-3 sm:pl-5 text-lg sm:text-2xl font-bold bg-emerald-600 text-white rounded-md p-2 sm:p-3 hover:bg-emerald-700 transition duration-300"
     >
       {btnname}
     </button>
@@ -57,20 +60,22 @@ function ExitConfirm({ onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white backdrop-blur-lg p-6 rounded-xl shadow-2xl w-80 text-center">
-        <h2 className="text-xl font-bold mb-4">Confirm Exit</h2>
-        <p className="mb-6 text-gray-700">Are you sure you want to exit?</p>
-        <div className="flex justify-center gap-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="bg-white backdrop-blur-lg p-6 rounded-xl shadow-2xl w-full max-w-xs sm:max-w-sm text-center">
+        <h2 className="text-lg sm:text-xl font-bold mb-4">Confirm Exit</h2>
+        <p className="mb-6 text-gray-700 text-sm sm:text-base">
+          Are you sure you want to exit?
+        </p>
+        <div className="flex justify-center gap-3 sm:gap-4">
           <button
             onClick={confirmExit}
-            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+            className="bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm sm:text-base"
           >
             Yes
           </button>
           <button
             onClick={onClose}
-            className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
+            className="bg-gray-400 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-500 transition text-sm sm:text-base"
           >
             No
           </button>

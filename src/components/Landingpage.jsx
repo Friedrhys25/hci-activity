@@ -44,6 +44,9 @@ const Landingpage = () => {
       className="h-screen w-screen flex justify-center items-center bg-cover bg-center"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
+      <div className="fixed top-0 left-0 w-full z-10">
+        <Navbar />
+      </div>
       {/* Login Box */}
       <div className="bg-white/80 backdrop-blur-md shadow-2xl border rounded-2xl p-8 w-96">
         <h2 className="text-xl font-bold mb-4">Welcome Student</h2>
