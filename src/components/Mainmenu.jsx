@@ -19,7 +19,7 @@ const Mainmenu = () => {
         <Menubtn btnname="1. Calculator" to="/calculator" />
         <Menubtn btnname="2. Grade checker" to="/gradechecker" />
         <Menubtn btnname="3. To-Do List" to="/todolist" />
-        <Menubtn btnname="4. About us" to="/about" />
+        <Menubtn btnname="4. Unit Converter" to="/unitcon" />
         <button
           onClick={() => setShowExitConfirm(true)}
           className="text-left pl-3 sm:pl-5 text-lg sm:text-2xl font-bold bg-red-600 text-white rounded-md p-2 sm:p-3 hover:bg-red-700 transition duration-300"

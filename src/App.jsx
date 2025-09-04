@@ -5,6 +5,7 @@ import Mainmenu from "./components/Mainmenu";
 import Calculatorpage from "./components/Calculatorpage";
 import Gradecheckerpage from "./components/Gradecheckerpage";
 import Todolistpage from "./components/Todolistpage";
+import Unitconverter from "./components/Unitconverter";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/calculator" element={<Calculatorpage />} />
         <Route path="/gradechecker" element={<Gradecheckerpage />} />
         <Route path="/todolist" element={<Todolistpage />} />
+        <Route path="/unitcon" element={<Unitconverter />} />
       </Routes>
     </Router>
   );

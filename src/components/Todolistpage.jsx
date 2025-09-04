@@ -1,29 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import bgImage from "../Image/1.jpg"; // ✅ background image import
+import bgImage from "../Image/1.jpg";
 
 const Todolistpage = () => {
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState("");
-  const [showExitConfirm, setShowExitConfirm] = useState(false); // ✅ for modal
+  const [date, setDate] = useState(""); // ✅ for task date
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Load tasks from localStorage (Smart To-do List)
+  // Load tasks from localStorage
   useEffect(() => {
     const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
     setTasks(savedTasks);
   }, []);
 
-  // ✅ Save tasks to localStorage whenever updated
+  // Save tasks to localStorage whenever updated
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
   // Add new task
   const addTask = () => {
-    if (input.trim() === "") return;
-    setTasks([...tasks, { text: input, done: false }]);
+    if (input.trim() === "" || date === "") {
+      alert("Please enter a task and select a date.");
+      return;
+    }
+    setTasks([...tasks, { text: input, date: date, done: false }]);
     setInput("");
+    setDate("");
   };
 
   // Toggle done/undone
@@ -70,9 +75,17 @@ const Todolistpage = () => {
           id="todotext"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="border rounded-lg h-20 w-full mb-3 mt-2 p-2 text-base md:text-lg"
+          className="border rounded-lg h-20 w-full mb-2 mt-2 p-2 text-base md:text-lg"
           placeholder="Write your task here..."
         ></textarea>
+
+        {/* Date picker */}
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="border rounded-lg w-full mb-3 p-2 text-base md:text-lg"
+        />
 
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row justify-between gap-3">
@@ -96,19 +109,22 @@ const Todolistpage = () => {
           {tasks.map((task, index) => (
             <li
               key={index}
-              className="flex justify-between items-center bg-white shadow px-3 py-2 mb-2 rounded-lg"
+              className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white shadow px-3 py-2 mb-2 rounded-lg"
             >
-              <span
+              <div
                 onClick={() => toggleTask(index)}
                 className={`cursor-pointer w-full text-sm sm:text-base md:text-lg ${
                   task.done ? "line-through text-gray-500" : "text-black"
                 }`}
               >
                 {task.text}
-              </span>
+                <div className="text-xs text-gray-500">
+                  📅 {task.date}
+                </div>
+              </div>
               <button
                 onClick={() => deleteTask(index)}
-                className="ml-2 text-red-500 font-bold hover:text-red-700 text-lg"
+                className="ml-0 sm:ml-2 text-red-500 font-bold hover:text-red-700 text-lg mt-2 sm:mt-0"
               >
                 ✕
               </button>
@@ -125,7 +141,7 @@ const Todolistpage = () => {
         </button>
       </div>
 
-      {/* ✅ Exit Confirmation Modal */}
+      {/* Exit Confirmation Modal */}
       {showExitConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm text-center">
