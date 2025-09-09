@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import bgImage from "../Image/1.jpg"; // ✅ background import
+import Navbar from "./Navbar";
 
 const Gradecheckerpage = () => {
   const [subjectCount, setSubjectCount] = useState("");
@@ -54,6 +55,7 @@ const Gradecheckerpage = () => {
       className="min-h-screen w-screen flex justify-center items-center bg-cover bg-center"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
+
       {/* Main Container */}
       <div className="bg-white/80 backdrop-blur-md shadow-lg rounded-2xl p-4 sm:p-6 w-[90%] max-w-sm sm:max-w-md text-center">
         <h1 className="text-xl sm:text-2xl font-bold mb-4">GWA Calculator</h1>
