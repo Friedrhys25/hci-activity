@@ -6,13 +6,28 @@ import Calculatorpage from "./components/Calculatorpage";
 import Gradecheckerpage from "./components/Gradecheckerpage";
 import Todolistpage from "./components/Todolistpage";
 import Unitconverter from "./components/Unitconverter";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import ProtectedRoute from "./components/ProtectedRoute"; // ✅ import
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Landingpage />} />
-        <Route path="/mainmenu" element={<Mainmenu />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* ✅ Protected Mainmenu */}
+        <Route
+          path="/mainmenu"
+          element={
+            <ProtectedRoute>
+              <Mainmenu />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="/calculator" element={<Calculatorpage />} />
         <Route path="/gradechecker" element={<Gradecheckerpage />} />
         <Route path="/todolist" element={<Todolistpage />} />

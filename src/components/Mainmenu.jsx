@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import bgImage from "../Image/1.jpg"; // ✅ background image
+import { auth } from "../firebase";
 
 const Mainmenu = () => {
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const handleLogout = async () => {
+    await auth.signOut();
+  };
 
   return (
     <div
@@ -21,10 +25,10 @@ const Mainmenu = () => {
         <Menubtn btnname="3. To-Do List" to="/todolist" />
         <Menubtn btnname="4. Unit Converter" to="/unitcon" />
         <button
-          onClick={() => setShowExitConfirm(true)}
+          onClick={handleLogout}
           className="text-left pl-3 sm:pl-5 text-lg sm:text-2xl font-bold bg-red-600 text-white rounded-md p-2 sm:p-3 hover:bg-red-700 transition duration-300"
         >
-          5. Exit
+          5. Logout
         </button>
       </div>
 
