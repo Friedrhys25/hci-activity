@@ -8,13 +8,19 @@ import Todolistpage from "./components/Todolistpage";
 import Unitconverter from "./components/Unitconverter";
 import Login from "./components/Login";
 import Register from "./components/Register";
-import ProtectedRoute from "./components/ProtectedRoute"; // ✅ import
+import ProtectedRoute from "./components/ProtectedRoute"; 
+import FirstLanding from "./components/FirstLanding"; // ✅ import FirstLanding
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Landingpage />} />
+        {/* 👉 Set FirstLanding as the root (homepage) */}
+        <Route path="/firstland" element={<FirstLanding />} />
+
+        {/* keep Landingpage accessible at /landing if you still want it */}
+        <Route path="/landing" element={<Landingpage />} />
+
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
