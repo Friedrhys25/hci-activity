@@ -16,7 +16,7 @@ function App() {
     <Router>
       <Routes>
         {/* 👉 Set FirstLanding as the root (homepage) */}
-        <Route path="/firstland" element={<FirstLanding />} />
+        <Route path="/" element={<FirstLanding />} />
 
         {/* keep Landingpage accessible at /landing if you still want it */}
         <Route path="/landing" element={<Landingpage />} />
