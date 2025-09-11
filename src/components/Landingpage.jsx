@@ -114,7 +114,7 @@ const Landingpage = () => {
             
             <div className="flex justify-center gap-4 animate-fadeIn delay-300">               
               <button                 
-                onClick={() => navigate("/firstland")}
+                onClick={() => navigate("/")}
                 className="relative overflow-hidden bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all duration-300 font-medium transform hover:scale-105 hover:from-red-600 hover:to-red-700 active:scale-95"               
               >
                 <span className="relative z-10">Yes</span>
