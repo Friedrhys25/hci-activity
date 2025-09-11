@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import bgImage from "../Image/1.jpg";
+import { db } from "../firebase";
+import { ref, push, onValue, remove } from "firebase/database";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const Unitconverter = () => {
   const [input, setInput] = useState("");
@@ -8,10 +11,13 @@ const Unitconverter = () => {
   const [fromUnit, setFromUnit] = useState("meters");
   const [toUnit, setToUnit] = useState("centimeters");
   const [result, setResult] = useState(null);
+  const [history, setHistory] = useState([]); // ✅ conversion history
+  const [userId, setUserId] = useState(null);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
 
   const navigate = useNavigate();
 
+  // ✅ Units
   const units = {
     length: ["meters", "kilometers", "centimeters", "inches", "feet", "miles", "yards"],
     weight: ["kilograms", "grams", "pounds", "ounces"],
@@ -22,7 +28,8 @@ const Unitconverter = () => {
     speed: ["mps", "kph", "mph"],
   };
 
-  const toBase = {
+  // ✅ Conversion logic
+  const toBase = { /* same as before */ 
     meters: (v) => v,
     kilometers: (v) => v * 1000,
     centimeters: (v) => v * 0.01,
@@ -56,7 +63,7 @@ const Unitconverter = () => {
     mph: (v) => v * 0.44704,
   };
 
-  const fromBase = {
+  const fromBase = { /* same as before */ 
     meters: (v) => v,
     kilometers: (v) => v / 1000,
     centimeters: (v) => v / 0.01,
@@ -90,6 +97,44 @@ const Unitconverter = () => {
     mph: (v) => v / 0.44704,
   };
 
+  // ✅ Check logged-in user
+  useEffect(() => {
+    const auth = getAuth();
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) setUserId(user.uid);
+      else navigate("/login");
+    });
+    return () => unsub();
+  }, [navigate]);
+
+  // ✅ Load conversion history
+  useEffect(() => {
+    if (!userId) return;
+    const convRef = ref(db, `users/${userId}/history/unitHistory`);
+    onValue(convRef, (snap) => {
+      const data = snap.val();
+      if (data) {
+        const records = Object.entries(data).map(([id, record]) => ({
+          id,
+          ...record,
+        }));
+        records.sort((a, b) => b.timestamp - a.timestamp);
+        setHistory(records);
+      } else {
+        setHistory([]);
+      }
+    });
+  }, [userId]);
+
+  // ✅ Clear history
+  const clearHistory = () => {
+    if (!userId) return;
+    const convRef = ref(db, `users/${userId}/history/unitHistory`);
+    remove(convRef);
+    setHistory([]);
+  };
+
+  // ✅ Convert and Save
   const convert = () => {
     let value = parseFloat(input);
     if (isNaN(value)) {
@@ -99,8 +144,24 @@ const Unitconverter = () => {
 
     const baseValue = toBase[fromUnit](value);
     const converted = fromBase[toUnit](baseValue);
-    const formatted = Number.isInteger(converted) ? converted : parseFloat(converted.toFixed(6));
-    setResult(`${value} ${fromUnit} = ${formatted} ${toUnit}`);
+    const formatted = Number.isInteger(converted)
+      ? converted
+      : parseFloat(converted.toFixed(6));
+
+    const conversionResult = `${value} ${fromUnit} = ${formatted} ${toUnit}`;
+    setResult(conversionResult);
+
+    // ✅ Save to Firebase
+    if (userId) {
+      const convRef = ref(db, `users/${userId}/history/unitHistory`);
+      push(convRef, {
+        input: value,
+        fromUnit,
+        toUnit,
+        result: formatted,
+        timestamp: Date.now(),
+      });
+    }
   };
 
   const swapUnits = () => {
@@ -111,10 +172,10 @@ const Unitconverter = () => {
 
   return (
     <div
-      className="min-h-screen w-screen flex justify-center items-start bg-cover bg-center p-6"
+      className="min-h-screen w-screen flex flex-col lg:flex-row justify-center items-start bg-cover bg-center p-6 gap-6"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
-      {/* Container Zoom on Hover */}
+      {/* Converter Box */}
       <div className="bg-white bg-opacity-90 shadow-lg rounded-2xl p-8 flex flex-col items-center w-96 mt-12 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
         <h1 className="text-2xl font-bold mb-4">Unit Converter</h1>
 
@@ -123,7 +184,7 @@ const Unitconverter = () => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Enter value"
-          className="border p-2 rounded w-full mb-3 transition duration-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+          className="border p-2 rounded w-full mb-3"
         />
 
         <select
@@ -133,7 +194,7 @@ const Unitconverter = () => {
             setFromUnit(units[e.target.value][0]);
             setToUnit(units[e.target.value][1]);
           }}
-          className="border p-2 rounded w-full mb-3 transition duration-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+          className="border p-2 rounded w-full mb-3"
         >
           <option value="length">Length / Distance</option>
           <option value="weight">Weight / Mass</option>
@@ -148,7 +209,7 @@ const Unitconverter = () => {
           <select
             value={fromUnit}
             onChange={(e) => setFromUnit(e.target.value)}
-            className="border p-2 rounded w-full transition duration-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+            className="border p-2 rounded w-full"
           >
             {units[category].map((u) => (
               <option key={u} value={u}>{u}</option>
@@ -157,7 +218,7 @@ const Unitconverter = () => {
 
           <button
             onClick={swapUnits}
-            className="bg-blue-500 text-white px-3 py-2 rounded transform transition duration-300 hover:scale-110 hover:shadow-lg hover:bg-blue-600"
+            className="bg-blue-500 text-white px-3 py-2 rounded"
           >
             ⇆
           </button>
@@ -165,7 +226,7 @@ const Unitconverter = () => {
           <select
             value={toUnit}
             onChange={(e) => setToUnit(e.target.value)}
-            className="border p-2 rounded w-full transition duration-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+            className="border p-2 rounded w-full"
           >
             {units[category].map((u) => (
               <option key={u} value={u}>{u}</option>
@@ -175,36 +236,72 @@ const Unitconverter = () => {
 
         <button
           onClick={convert}
-          className="bg-emerald-600 text-white px-4 py-2 rounded-lg w-full font-bold transform transition duration-300 hover:scale-110 hover:shadow-lg hover:bg-emerald-700"
+          className="bg-emerald-600 text-white px-4 py-2 rounded-lg w-full font-bold"
         >
           Convert
         </button>
 
-        {result && <p className="mt-4 text-lg font-medium transition duration-500 ease-in-out">{result}</p>}
+        {result && <p className="mt-4 text-lg font-medium">{result}</p>}
 
         <button
           onClick={() => setShowExitConfirm(true)}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg w-full font-bold transform transition duration-300 hover:scale-110 hover:shadow-lg hover:bg-red-700 mt-3"
+          className="bg-red-600 text-white px-4 py-2 rounded-lg w-full font-bold mt-3"
         >
           Exit
         </button>
       </div>
 
+      {/* ✅ History Box */}
+      <div className="w-full max-w-sm bg-white/90 rounded-2xl shadow-lg p-4 h-fit lg:max-h-[500px] mt-12 flex flex-col">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-lg font-bold text-gray-800">📜 History</h2>
+          {history.length > 0 && (
+            <button
+              onClick={clearHistory}
+              className="text-sm text-red-600 font-semibold hover:text-red-800"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        <div className="max-h-80 overflow-y-auto space-y-2">
+          {history.length === 0 ? (
+            <p className="text-gray-500 text-sm">No history yet.</p>
+          ) : (
+            history.map((h) => (
+              <div
+                key={h.id}
+                className="flex justify-between items-center bg-gray-100 px-3 py-2 rounded-lg shadow-sm"
+              >
+                <span className="text-sm font-mono truncate pr-2">
+                  {h.input} {h.fromUnit} →
+                </span>
+                <span className="font-bold text-emerald-600 flex-shrink-0">
+                  {h.result} {h.toUnit}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Exit Modal */}
       {showExitConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 z-30">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4 z-30">
           <div className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-xs text-center">
             <h2 className="text-lg font-bold mb-4">Confirm Exit</h2>
             <p className="mb-6 text-gray-700 text-sm">Are you sure you want to exit?</p>
             <div className="flex justify-center gap-3">
               <button
                 onClick={() => navigate("/mainmenu")}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg transform transition duration-300 hover:scale-110 hover:shadow-lg hover:bg-red-700"
+                className="bg-red-600 text-white px-4 py-2 rounded-lg"
               >
                 Yes
               </button>
               <button
                 onClick={() => setShowExitConfirm(false)}
-                className="bg-gray-400 text-white px-4 py-2 rounded-lg transform transition duration-300 hover:scale-110 hover:shadow-lg hover:bg-gray-500"
+                className="bg-gray-400 text-white px-4 py-2 rounded-lg"
               >
                 No
               </button>

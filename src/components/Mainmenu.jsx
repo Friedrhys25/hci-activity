@@ -200,5 +200,4 @@ function LogoutConfirm({ onClose }) {
     </div>
   );
 }
-
 export default Mainmenu;

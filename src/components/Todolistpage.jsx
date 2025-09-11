@@ -1,119 +1,122 @@
+// Todolistpage.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { db } from "../firebase";
+import { ref, push, onValue, remove, update } from "firebase/database";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import bgImage from "../Image/1.jpg";
 
 const Todolistpage = () => {
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState("");
   const [date, setDate] = useState("");
-  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
 
-  // Load tasks from localStorage
+  // ✅ Check logged-in user
   useEffect(() => {
-    const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    setTasks(savedTasks);
-  }, []);
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        navigate("/login"); // redirect if not logged in
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
-  // Save tasks to localStorage whenever updated
+  // ✅ Fetch tasks from this user's history
   useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+    if (!userId) return;
 
-  // Add new task
+    const tasksRef = ref(db, `users/${userId}/history/todohis`);
+    onValue(tasksRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const taskList = Object.entries(data).map(([id, task]) => ({
+          id,
+          ...task,
+        }));
+        setTasks(taskList);
+      } else {
+        setTasks([]);
+      }
+    });
+  }, [userId]);
+
+  // ✅ Add task
   const addTask = () => {
-    if (input.trim() === "" || date === "") {
-      alert("⚠️ Please enter a task and select a date.");
-      return;
-    }
-    setTasks([...tasks, { text: input, date: date, done: false }]);
+    if (input.trim() === "" || date.trim() === "") return;
+
+    const tasksRef = ref(db, `users/${userId}/history/todohis`);
+    push(tasksRef, {
+      text: input,
+      date: date,
+      done: false,
+    });
+
     setInput("");
     setDate("");
   };
 
-  // Toggle done/undone
-  const toggleTask = (index) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].done = !updatedTasks[index].done;
-    setTasks(updatedTasks);
+  // ✅ Toggle task (done/undone)
+  const toggleTask = (taskId, currentStatus) => {
+    const taskRef = ref(db, `users/${userId}/history/todohis/${taskId}`);
+    update(taskRef, { done: !currentStatus });
   };
 
-  // Delete task
-  const deleteTask = (index) => {
-    const updatedTasks = tasks.filter((_, i) => i !== index);
-    setTasks(updatedTasks);
-  };
-
-  // Clear all tasks
-  const clearTasks = () => {
-    if (window.confirm("Clear all tasks?")) {
-      setTasks([]);
-    }
-  };
-
-  // Exit button opens modal
-  const handleExit = () => {
-    setShowExitConfirm(true);
-  };
-
-  // Confirm exit
-  const confirmExit = () => {
-    setShowExitConfirm(false);
-    navigate("/mainmenu");
+  // ✅ Delete task
+  const deleteTask = (taskId) => {
+    const taskRef = ref(db, `users/${userId}/history/todohis/${taskId}`);
+    remove(taskRef);
   };
 
   return (
     <div
-      className="min-h-screen w-screen flex justify-center items-center bg-cover bg-center animate-fadeIn"
+      className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
-      <div className="bg-white/90 shadow-2xl rounded-3xl p-6 sm:p-8 w-full max-w-md md:max-w-lg flex flex-col space-y-4 transform transition duration-500 scale-95 hover:scale-100">
-        <h1 className="text-2xl md:text-3xl font-bold text-center text-emerald-700 mb-4 animate-fadeInDown">
-          📝 Smart To-Do List
+      <div className="bg-white bg-opacity-90 shadow-xl rounded-2xl p-6 w-11/12 max-w-md animate-fadeInUp">
+        <h1 className="text-2xl font-bold mb-4 text-center text-gray-800">
+          📝 Todo List
         </h1>
 
-        {/* Input Field */}
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Write your task here..."
-          className="border rounded-lg h-20 w-full mb-2 mt-2 p-2 text-base md:text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 animate-fadeInUp transition"
-        />
-
-        {/* Date Picker */}
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="border rounded-lg w-full mb-3 p-2 text-base md:text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 animate-fadeInUp delay-100 transition"
-        />
-
-        {/* Buttons */}
-        <div className="flex flex-col sm:flex-row justify-between gap-3 animate-fadeInUp delay-200">
+        {/* Input fields */}
+        <div className="flex flex-col sm:flex-row items-center gap-2 mb-4">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Enter a task"
+            className="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring focus:border-blue-400"
+          />
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring focus:border-blue-400"
+          />
           <button
             onClick={addTask}
-            className="bg-emerald-600 text-white px-4 py-2 rounded-lg w-full font-bold hover:bg-emerald-700 transform hover:scale-105 transition"
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
           >
             Add
           </button>
-
-          <button
-            onClick={clearTasks}
-            className="bg-gray-600 text-white px-4 py-2 rounded-lg w-full font-bold hover:bg-gray-700 transform hover:scale-105 transition"
-          >
-            Clear
+          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition" onClick={() => navigate("/mainmenu")}>
+            Exit
           </button>
         </div>
 
         {/* Task List */}
-        <ul className="mt-4 text-left max-h-44 sm:max-h-52 md:max-h-64 overflow-y-auto space-y-2 animate-fadeInUp delay-300">
-          {tasks.map((task, index) => (
+        <ul className="mt-4 text-left max-h-64 overflow-y-auto space-y-2 animate-fadeInUp delay-300">
+          {tasks.map((task) => (
             <li
-              key={index}
+              key={task.id}
               className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white shadow px-3 py-2 rounded-lg"
             >
               <div
-                onClick={() => toggleTask(index)}
+                onClick={() => toggleTask(task.id, task.done)}
                 className={`cursor-pointer w-full text-sm sm:text-base md:text-lg ${
                   task.done ? "line-through text-gray-500" : "text-black"
                 }`}
@@ -122,7 +125,7 @@ const Todolistpage = () => {
                 <div className="text-xs text-gray-500">📅 {task.date}</div>
               </div>
               <button
-                onClick={() => deleteTask(index)}
+                onClick={() => deleteTask(task.id)}
                 className="ml-0 sm:ml-2 text-red-500 font-bold hover:text-red-700 text-lg mt-2 sm:mt-0 transition-transform transform hover:scale-110"
               >
                 ✕
@@ -130,41 +133,7 @@ const Todolistpage = () => {
             </li>
           ))}
         </ul>
-
-        {/* Exit Button */}
-        <button
-          onClick={handleExit}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg w-full font-bold hover:bg-red-700 transform hover:scale-105 transition mt-5 animate-fadeInUp delay-400"
-        >
-          Exit
-        </button>
       </div>
-
-      {/* Exit Confirmation Modal */}
-      {showExitConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4 z-30 animate-fadeIn">
-          <div className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-sm text-center animate-slideUp">
-            <h3 className="text-lg font-bold mb-3">Confirm Exit</h3>
-            <p className="mb-4 text-gray-700 text-sm sm:text-base">
-              Are you sure you want to exit?
-            </p>
-            <div className="flex flex-col sm:flex-row justify-around gap-3">
-              <button
-                onClick={confirmExit}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-700 transform hover:scale-105 transition"
-              >
-                Yes
-              </button>
-              <button
-                onClick={() => setShowExitConfirm(false)}
-                className="bg-gray-400 text-white px-4 py-2 rounded-lg font-bold hover:bg-gray-500 transform hover:scale-105 transition"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
